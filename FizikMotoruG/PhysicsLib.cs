@@ -1,24 +1,24 @@
 ﻿public class Vector2
 {   
-    public float x;
-    public float y;
-    public Vector2(float x, float y)
+    public double x;
+    public double y;
+    public Vector2(double x, double y)
     {
         this.x = x;
         this.y = y;
     }
-    public static float Distance(Vector2 a,Vector2 b)
+    public static double Distance(Vector2 a,Vector2 b)
     {
-        return MathF.Sqrt(MathF.Pow((a.x - b.x),2) + MathF.Pow((a.y - b.y),2));
+        return Math.Sqrt(Math.Pow((a.x - b.x),2) + Math.Pow((a.y - b.y),2));
     }
 }
 
 public class Vector3
 {
-    public float x;
-    public float y;
-    public float z;
-    public Vector3(float x, float y, float z)
+    public double x;
+    public double y;
+    public double z;
+    public Vector3(double x, double y, double z)
     {
         this.x = x;
         this.y = y;
@@ -29,8 +29,8 @@ public class Vector3
 public class Transform
 {
     public Vector2 position;
-    public float scale;
-    public Transform(Vector2 position, float scale)
+    public double scale;
+    public Transform(Vector2 position, double scale)
     {
         this.position = position;
         this.scale = scale;
@@ -39,10 +39,10 @@ public class Transform
 
 public class Physics
 {
-    public float velocity;
-    public float mass;
-
-    public Physics(float velocity, float mass)
+    public double mass;
+    public double newton;
+    public double velocity;
+    public Physics(double velocity, double mass)
     {
         this.velocity = velocity;
         this.mass = mass;
@@ -68,8 +68,10 @@ public class Physics
             {
                 if(_obj != obj && !Physics.IsColliding(_obj, objects))
                 {
-                    _obj.physics.velocity = _obj.physics.mass*obj.physics.mass/MathF.Pow(Vector2.Distance(_obj.transform.position,obj.transform.position),2);
-                    Object.GoTo(_obj, obj);
+                    obj.physics.newton = 6.67*MathF.Pow(10,-11)*(obj.physics.mass * _obj.physics.mass / Math.Pow(Vector2.Distance(obj.transform.position, _obj.transform.position), 2));
+                    double acceleration = obj.physics.newton / _obj.physics.mass;
+                    Object.GoTo(_obj,obj,acceleration );
+                    _obj.physics.velocity = acceleration;
                 }
             }
         }
@@ -86,25 +88,24 @@ public class Object
         this.physics = physics;
         this.transform = transform;
     }
-    public static void GoTo(Object self,Object target)
+    public static void GoTo(Object self,Object target,double a)
     {
         Vector2 trgRot = new Vector2(target.transform.position.x - self.transform.position.x, target.transform.position.y - self.transform.position.y);
 
-        for (int i = 0; i < MathF.Abs(trgRot.x); i++)
+        for (int i = 0; i < Math.Abs(trgRot.x); i++)
         {
-            if(!(Vector2.Distance(self.transform.position, target.transform.position) > (self.transform.scale  + target.transform.scale )/ 2)){
-                break;
+            if(!Physics.IsColliding(self, target))
+            {
+                self.transform.position.x += trgRot.x < 0 ? -1 * a / Time.deltaTime : 1 * a/Time.deltaTime;
             }
-            self.transform.position.x += trgRot.x < 0 ? -1 * self.physics.velocity / Time.deltaTime : 1 * self.physics.velocity/Time.deltaTime;
         }
 
-        for (int i = 0; i < MathF.Abs(trgRot.y); i++)
+        for (int i = 0; i < Math.Abs(trgRot.y); i++)
         {
-            if (!(Vector2.Distance(self.transform.position, target.transform.position) > (self.transform.scale  + target.transform.scale) / 2))
+            if (!Physics.IsColliding(self, target))
             {
-                break;
+                self.transform.position.y += trgRot.y < 0 ? -1 * a / Time.deltaTime : 1 * a / Time.deltaTime;
             }
-            self.transform.position.y += trgRot.y < 0 ? -1 * self.physics.velocity / Time.deltaTime : 1 *self.physics.velocity / Time.deltaTime;
         }
     }
 }
