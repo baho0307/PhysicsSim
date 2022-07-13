@@ -42,6 +42,8 @@ public class Physics
     public double mass;
     public double newton;
     public double velocity;
+    public Vector2 rot;
+    public const double G = .0000000000667 ;
     public Physics(double velocity, double mass)
     {
         this.velocity = velocity;
@@ -60,6 +62,8 @@ public class Physics
         return false;
     }
 
+
+
     public static void Gravity(params Object[] objects)
     {
         foreach(Object _obj in objects)
@@ -68,9 +72,9 @@ public class Physics
             {
                 if(_obj != obj && !Physics.IsColliding(_obj, objects))
                 {
-                    obj.physics.newton = 6.67*MathF.Pow(10,-11)*(obj.physics.mass * _obj.physics.mass / Math.Pow(Vector2.Distance(obj.transform.position, _obj.transform.position), 2));
+                    obj.physics.newton = G*(obj.physics.mass * _obj.physics.mass / Math.Pow(Vector2.Distance(obj.transform.position, _obj.transform.position), 2));
                     double acceleration = obj.physics.newton / _obj.physics.mass;
-                    Object.GoTo(_obj,obj,acceleration );
+                    Object.GoToObj(_obj,obj,acceleration );
                     _obj.physics.velocity = acceleration;
                 }
             }
@@ -88,10 +92,30 @@ public class Object
         this.physics = physics;
         this.transform = transform;
     }
-    public static void GoTo(Object self,Object target,double a)
+    public static void GoTo(Object self ,Vector2 target,double a,params Object[] obj)
+    {
+        Vector2 trgRot = new Vector2(target.x - self.transform.position.x, target.y - self.transform.position.y);
+        
+        for (int i = 0; i < Math.Abs(trgRot.x); i++)
+        {
+            if (!Physics.IsColliding(self, obj))
+            {
+                self.transform.position.x += trgRot.x < 0 ? -1 * a / Time.deltaTime : 1 * a / Time.deltaTime;
+            }
+        }
+
+        for (int i = 0; i < Math.Abs(trgRot.y); i++)
+        {
+            if (!Physics.IsColliding(self, obj))
+            {
+                self.transform.position.y += trgRot.y < 0 ? -1 * a / Time.deltaTime : 1 * a / Time.deltaTime;
+            }
+        }
+    }
+    public static void GoToObj(Object self,Object target,double a)
     {
         Vector2 trgRot = new Vector2(target.transform.position.x - self.transform.position.x, target.transform.position.y - self.transform.position.y);
-
+        self.physics.rot = trgRot;
         for (int i = 0; i < Math.Abs(trgRot.x); i++)
         {
             if(!Physics.IsColliding(self, target))

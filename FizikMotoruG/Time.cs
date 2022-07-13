@@ -2,5 +2,5 @@
 
 public class Time
 {
-    public static int deltaTime = 20;
+    public static int deltaTime = 10;
 }
