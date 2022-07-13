@@ -28,7 +28,7 @@ namespace FizikMotoruG
             Physics physics = new Physics(0,20000000000);
             Physics physics2 = new Physics(0,200);
             Physics physics3 = new Physics(0, 60);
-
+            
             Object obj1 = new Object(physics, transform1);
             Object obj2 = new Object(physics2, transform2);
 
